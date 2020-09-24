@@ -11,6 +11,7 @@ import succursale from '../models/succursale.js';
 // On import le service des succursales.
 import succursaleService from '../services/succursaleService.js';
 
+
 // On fait le routage.
 const router = express.Router();
 

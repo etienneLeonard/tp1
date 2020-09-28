@@ -16,3 +16,5 @@ const succursaleSchema = mongoose.Schema({
     telecopieur : {type : String, required : true},
     information : {type : String, required : true}
 })
+
+export default mongoose.model('Succursale', succursaleSchema);

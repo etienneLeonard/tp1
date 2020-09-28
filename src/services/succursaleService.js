@@ -4,11 +4,14 @@
 // Mis à jour : 24 septembre 2020
 
 // On import le model des livres.
-import Livre from '../models/livre.js';
+import Succursale from '../models/succursale.js';
 
-class LivreService{
-    
+class SuccursaleService{
+    create(succursale)
+    {
+        return Succursale.create(succursale);
+    }
 }
 
 // On met le service livre a tous.
-export default new LivreService();
+export default new SuccursaleService();

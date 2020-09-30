@@ -1,20 +1,19 @@
 // But : Programmation des routes de l'api pour les succursales.
-// Auteur : Gabriel Duquette Godon
+// Auteur : Gabriel Duquette Godon et Étienne Léonard
 // Date : 24 septembre 2020.
-// Mis à jour : 24 septembre 2020
+// Mis à jour : 29 septembre 2020
 
 // On import les modules.
 import express from 'express';
 import error from 'http-errors';
-import succursale from '../models/succursale.js';
 
 // On import le service des succursales.
-import succursaleService from '../services/succursaleService.js';
+import succursalesService from '../services/succursalesService.js';
 
 // On fait le routage.
 const router = express.Router();
 
-class SuccursaleRoutes{
+class SuccursalesRoutes{
     //#region  Constructeur
     constructor(){
         router.get('/:idSuccursale', this.getOne);  // Sélection d'une succursale.
@@ -35,11 +34,18 @@ class SuccursaleRoutes{
 
     //#region Sélection
     async getOne(req, res, next){
-
+        try{
+            let succursale = await succursalesService.retrieveById(req.params.idSuccursale);
+            succursale = succursale.toObject({ getter: false, virtual: true });
+            succursale = succursalesService.transform(succursale);
+            res.status(200).json(succursale);
+        }catch(err){
+            return next(error.InternalServerError());
+        }
     }
     //#endregion
 }
 
-new SuccursaleRoutes();
+new SuccursalesRoutes();
 
 export default router;

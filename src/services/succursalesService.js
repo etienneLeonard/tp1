@@ -1,4 +1,4 @@
-// But : Crée le service qui va faire le lien entre le models "Succursale" et sa route.
+// But : Créer le service qui va faire le lien entre le models "Succursale" et sa route.
 // Auteur : Gabriel Duquette Godon et Étienne Léonard
 // Date : 24 septembre 2020
 // Mis à jour : 29 septembre 2020
@@ -20,6 +20,7 @@ class SuccursalesService{
 
         // Ménage de la succursale
         delete succursale._id;
+        delete succursale.__v;
 
         return succursale;
     }

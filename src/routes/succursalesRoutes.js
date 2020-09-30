@@ -40,7 +40,8 @@ class SuccursalesRoutes{
             succursale = succursalesService.transform(succursale);
             res.status(200).json(succursale);
         }catch(err){
-            return next(error.InternalServerError());
+            // Ici il n'a pas trouvé la succursale, donc on utilise le code d'erreur 404
+            return next(error.NotFound());
         }
     }
     //#endregion

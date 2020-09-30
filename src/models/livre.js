@@ -3,7 +3,7 @@
 // Date : 24 septembre 2020
 // Mis à jour : 24 septembre 2020
 
-import mongoose from 'mongoose'
+import mongoose from 'mongoose';
 
 // On déclare le schéma.
 const livreSchema = mongoose.Schema({
@@ -12,7 +12,13 @@ const livreSchema = mongoose.Schema({
     prix : {type : Number, required : true},
     auteur : {type : String, required : true},
     sujet : {type : String, required : true},
-    ISBN : {type : String, required : true}
+    ISBN : {type : String, unique : true, required : true, validate:{
+            // Valide le code ISBN du livre
+            validator: function(l){
+                return /978-\d{1}-\d{4}-\d{4}-\d{1}/.test(l);
+            },
+             message: props => `${props.value} n'est pas un code ISBN valide.`
+            }}
 },
 {
     collection : 'livres'

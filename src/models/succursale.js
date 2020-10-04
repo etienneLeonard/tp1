@@ -1,9 +1,9 @@
-// But : Configurer le modèle pour la classe "Succursale".
-// Auteur : Gabriel Duquette Godon et Étienne Léonard
+// But : Configuer le modèle pour la classe "Inventaire".
+// Auteur : Gabriel Duquette Godon
 // Date : 24 septembre 2020
-// Mis à jour : 29 septembre 2020
+// Mis à jour : 24 septembre 2020
 
-import mongoose from 'mongoose';
+import mongoose from 'mongoose'
 
 // On déclare le schéma.
 const succursaleSchema = mongoose.Schema({
@@ -15,8 +15,6 @@ const succursaleSchema = mongoose.Schema({
     telephone : {type : String, required : true},
     telecopieur : {type : String, required : true},
     information : {type : String, required : true}
-},{
-    collection:'succursales'
-});
+})
 
-export default mongoose.model('Succursale', succursaleSchema)
+export default mongoose.model('Succursale', succursaleSchema);

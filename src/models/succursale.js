@@ -15,6 +15,8 @@ const succursaleSchema = mongoose.Schema({
     telephone : {type : String, required : true},
     telecopieur : {type : String, required : true},
     information : {type : String, required : true}
-})
+},{
+    collection:'succursales'
+});
 
 export default mongoose.model('Succursale', succursaleSchema);

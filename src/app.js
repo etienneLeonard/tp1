@@ -1,7 +1,6 @@
-// But : Créer l'endroit où pouvoir accéder à toutes les routes possibles du serveur.
-// Auteur : Etienne Leonard
-// Date : 23 septembre 2020
-// Mis à jour : 29 septembre 2020
+// But : Configurer le gestionnaire des routes.
+// Auteur : Équipe
+// Date : 28 septembre 2020
 
 import express from 'express';
 
@@ -21,6 +20,7 @@ app.use(express.json());
 // Ajout des routes présentes dans SuccursalesRoutes dans notre serveur
 app.use('/succursales', succursalesRoutes);
 app.use('/livres', livresRoutes);
-errors(app);
+
+app.use('*', errors);
 
 export default app;

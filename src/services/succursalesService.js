@@ -8,6 +8,11 @@ import Succursale from '../models/succursale.js';
 
 class SuccursalesService{
 
+    create(succursale)
+    {
+        return Succursale.create(succursale);
+    }
+
     // retourner une succursale par son ID
     retrieveById(succursaleId) {
         return Succursale.findById(succursaleId);

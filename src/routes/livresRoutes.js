@@ -5,6 +5,7 @@
 
 // On import les modules.
 import express from 'express';
+import paginate from 'express-paginate';
 import error from 'http-errors';
 
 // On import le service des succursales.
@@ -16,6 +17,7 @@ const router = express.Router();
 class LivresRoutes{
     //#region  Constructeur
     constructor(){
+        router.get('/', paginate.middleware(5,6), this.getAll);
         router.get('/:idLivre', this.getOne);  // Sélection d'un livre.
         router.post('/', this.post);                // Ajouter un livre.
         router.put('/:idLivre', this.put);     // Modifier un livre.
@@ -37,21 +39,8 @@ class LivresRoutes{
             res.header('Location', livreAdded.href);
             res.status(201).json(livreAdded);
         } catch(err) {
-            // TODO: Trouver la bonne erreur
-            console.log(err);
-            //Gestion des erreurs Mongo
-            if(err.name === 'MongoError') {
-                switch(err.code) {
-                    case 11000:
-                        // Si une valeur est déjà présente, on utilise le code d'erreur 409
-                        return next(error.Conflict(err));
-                }
-            } else if(err.message.includes('Livre validation')) {
-                // Si le livre ne respecte pas les conditions, on utilise le code d'erreur 412 
-                return next(error.PreconditionFailed(err));
-            }
-            // Pour si c'est une autre erreur
-            return next(error.InternalServerError(err));
+            // Va envoyer la bonne erreur
+            return next(err);
         }
     }
 
@@ -61,6 +50,52 @@ class LivresRoutes{
     //#endregion
 
     //#region Sélection
+    async getAll(req, res, next){
+
+        const retrieveOptions = {
+            limit: req.query.limit,
+            page: req.query.page,
+            skip: req.query.skip
+        }
+
+        try{
+            let [livres, itemsCount] = await livresService.retrieveByCriteria({}, retrieveOptions);
+
+            const pageCount = Math.ceil(itemsCount / req.query.limit);
+            const hasNextPage = paginate.hasNextPages(req)(pageCount);
+            const pageArray = paginate.getArrayPages(req)(3, pageCount, req.query.page);
+
+            const responseBody = {
+                _metadata: {
+                    hasNextPage: hasNextPage,
+                    page: req.query.page,
+                    limit: req.query.limit,
+                    totalPages: pageCount,
+                    totalDocument: itemsCount
+                },
+                _links: {
+                    prev: `${process.env.BASE_URL}${pageArray[0].url}`,
+                    self: `${process.env.BASE_URL}${pageArray[1].url}`,
+                    next: `${process.env.BASE_URL}${pageArray[2].url}`
+                },
+                results: livres
+            };
+
+            if(req.query.page === 1) {
+                // TODO: Quoi faire avec les links
+            }
+
+            if(!hasNextPage) {
+                // TODO: Quoi faire avec les links
+            }
+
+            res.status(200).json(responseBody);
+
+        }catch(err) {
+            return next(err);
+        }
+    }
+
     async getOne(req, res, next){
         
     }

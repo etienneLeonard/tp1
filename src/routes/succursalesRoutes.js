@@ -63,11 +63,13 @@ class SuccursalesRoutes{
 
     async put(req, res, next){
         if(!req.body)
-            return next(error.BadRequest());
-        
+        {
+            return next(error.BadRequest());           
+        }
+
         // On regarde s'il a un problème a faissant la modification.
         try{
-            let succursale = await succursalesService.put(req.params.idSuccursale, req.body);
+            let succursale = await succursalesService.update(req.params.idSuccursale, req.body);
 
             if(req.query._body === 'false'){
                 res.status(200).end();
@@ -87,6 +89,7 @@ class SuccursalesRoutes{
     async getOne(req, res, next){
         try{
             let succursale = await succursalesService.retrieveById(req.params.idSuccursale);
+            console.log(succursale);
             succursale = succursale.toObject({ getter: false, virtual: true });
             succursale = succursalesService.transform(succursale);
             res.status(200).json(succursale);

@@ -18,6 +18,15 @@ class SuccursalesService{
         return Succursale.findById(succursaleId);
     }
 
+    async update(succursaleID, succursale){
+        // On crée un filtreur.
+        const filter = {_id: succursaleID};
+
+        await Succursale.findByIdAndUpdate(filter,succursale);
+
+        return Succursale.findOne(filter);
+    }
+
     // permet de transformer l'envoi des données d'une succursale
     transform(succursale, transformOptions = {}) {
         // linking

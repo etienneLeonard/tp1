@@ -62,7 +62,24 @@ class SuccursalesRoutes{
     }
 
     async put(req, res, next){
+        if(!req.body)
+            return next(error.BadRequest());
+        
+        // On regarde s'il a un problème a faissant la modification.
+        try{
+            let succursale = await succursalesService.put(req.params.idSuccursale, req.body);
 
+            if(req.query._body === 'false'){
+                res.status(200).end();
+            }else{
+                succursale = succursale.toObject({getter:false, virtual:true});
+
+                succursale = succursalesService.transform(succursale);
+                res.status(200).json(succursale);
+            }
+        }catch(err){
+            return next(error.InternalServerError(err));
+        }
     }
     //#endregion
 

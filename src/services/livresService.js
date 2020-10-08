@@ -15,9 +15,8 @@ class LivresService{
 
     delete(idLivre)
     {
-        const filter = {_id: idLivre};
-
-        return Livre.deleteOne(filter);
+        
+        return Livre.findByIdAndDelete(idLivre);
 
     }
 

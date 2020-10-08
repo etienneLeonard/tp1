@@ -6,6 +6,7 @@
 // On import les modules.
 import express from 'express';
 import paginate from 'express-paginate';
+import { stat } from 'fs';
 import error from 'http-errors';
 
 // On import le service des succursales.
@@ -104,7 +105,7 @@ class LivresRoutes{
     async delete(req,res,next){
         // On essais de supprimer la planete.
         try{
-            let status = livresService.delete(req.params.idLivre);
+            let status = await livresService.delete(req.params.idLivre);
             console.log(status);
             res.status(204).end();
         }catch(err){

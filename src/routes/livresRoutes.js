@@ -21,6 +21,7 @@ class LivresRoutes{
         router.get('/:idLivre', this.getOne);  // Sélection d'un livre.
         router.post('/', this.post);                // Ajouter un livre.
         router.put('/:idLivre', this.put);     // Modifier un livre.
+        router.delete('/:idLivre', this.delete)
     }
     //#endregion
 
@@ -98,6 +99,16 @@ class LivresRoutes{
 
     async getOne(req, res, next){
         
+    }
+
+    async delete(req,res,next){
+        // On essais de supprimer la planete.
+        try{
+            let status = livresService.delete(req.params.idLivre);
+            res.status(204).end();
+        }catch(err){
+            return next(error.InternalServerError(err));
+        }
     }
     //#endregion
 }

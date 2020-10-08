@@ -13,6 +13,14 @@ class LivresService{
         return Livre.create(livre);
     }
 
+    delete(idLivre)
+    {
+        const filter = {_id: idLivre};
+
+        return Livre.deleteOne(filter);
+
+    }
+
     // permet de récupérer tous les livres avec une metadata
     retrieveByCriteria(filter, retrieveOptions) {
         const limit = retrieveOptions.limit;

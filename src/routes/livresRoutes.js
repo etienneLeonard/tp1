@@ -56,38 +56,109 @@ class LivresRoutes{
         const retrieveOptions = {
             limit: req.query.limit,
             page: req.query.page,
-            skip: req.query.skip
+            skip: req.skip
         }
 
         try{
-            let [livres, itemsCount] = await livresService.retrieveByCriteria({}, retrieveOptions);
 
+            let filter = {};
+
+            // on verifie s'il y a une categorie de donnée
+            if(req.query.categorie){
+                filter = {categorie: `${req.query.categorie}`};
+            }
+
+            // on va récupérer les livres et le nombre de livres
+            let [livres, itemsCount] = await livresService.retrieveByCriteria(filter, retrieveOptions);
+
+            // on déclage les constantes pour le metadata
             const pageCount = Math.ceil(itemsCount / req.query.limit);
             const hasNextPage = paginate.hasNextPages(req)(pageCount);
             const pageArray = paginate.getArrayPages(req)(3, pageCount, req.query.page);
-
-            const responseBody = {
-                _metadata: {
-                    hasNextPage: hasNextPage,
-                    page: req.query.page,
-                    limit: req.query.limit,
-                    totalPages: pageCount,
-                    totalDocument: itemsCount
-                },
-                _links: {
-                    prev: `${process.env.BASE_URL}${pageArray[0].url}`,
-                    self: `${process.env.BASE_URL}${pageArray[1].url}`,
-                    next: `${process.env.BASE_URL}${pageArray[2].url}`
-                },
-                results: livres
-            };
-
-            if(req.query.page === 1) {
-                // TODO: Quoi faire avec les links
+            
+            // déclaration du responsebody
+            let responseBody = {};
+            
+            // s'il y a juste des livres pour une seul page, alors il ne faut pas de link prev et next
+            if(pageCount === 1){
+                responseBody = {
+                    _metadata: {
+                        hasNextPage: hasNextPage,
+                        page: req.query.page,
+                        limit: req.query.limit,
+                        totalPages: pageCount,
+                        totalDocument: itemsCount
+                    },
+                    _links: {
+                        self: `${process.env.BASE_URL}${pageArray[0].url}`
+                    },
+                    results: livres
+                };
             }
 
-            if(!hasNextPage) {
-                // TODO: Quoi faire avec les links
+            // s'il y a assez de livre que pour 2 pages, alors il faut qu'un self et un next
+            if(pageCount === 2){
+                responseBody = {
+                    _metadata: {
+                        hasNextPage: hasNextPage,
+                        page: req.query.page,
+                        limit: req.query.limit,
+                        totalPages: pageCount,
+                        totalDocument: itemsCount
+                    },
+                    _links: {
+                        self: `${process.env.BASE_URL}${pageArray[0].url}`,
+                        next: `${process.env.BASE_URL}${pageArray[1].url}`
+                    },
+                    results: livres
+                };
+
+                // pour si nous sommes à la première page
+                if(req.query.page === 1) {
+                    delete responseBody._links.prev;
+                    responseBody._links.self = `${process.env.BASE_URL}${pageArray[0].url}`;
+                    responseBody._links.next = `${process.env.BASE_URL}${pageArray[1].url}`;
+                }
+    
+                // pour s'il n'y a pas de prochaine page
+                if(!hasNextPage) {
+                    responseBody._links.prev = `${process.env.BASE_URL}${pageArray[0].url}`;
+                    responseBody._links.self = `${process.env.BASE_URL}${pageArray[1].url}`;
+                    delete responseBody._links.next;
+                }
+            }
+            
+            // Pour s'il y a assez de livres pour plus de 3 pages
+            if(pageCount >= 3){
+                responseBody = {
+                    _metadata: {
+                        hasNextPage: hasNextPage,
+                        page: req.query.page,
+                        limit: req.query.limit,
+                        totalPages: pageCount,
+                        totalDocument: itemsCount
+                    },
+                    _links: {
+                        prev: `${process.env.BASE_URL}${pageArray[0].url}`,
+                        self: `${process.env.BASE_URL}${pageArray[1].url}`,
+                        next: `${process.env.BASE_URL}${pageArray[2].url}`
+                    },
+                    results: livres
+                };
+
+                // pour si nous sommes à la première page
+                if(req.query.page === 1) {
+                    delete responseBody._links.prev;
+                    responseBody._links.self = `${process.env.BASE_URL}${pageArray[0].url}`;
+                    responseBody._links.next = `${process.env.BASE_URL}${pageArray[1].url}`;
+                }
+    
+                // pour s'il n'y a pas de prochaine page
+                if(!hasNextPage) {
+                    responseBody._links.prev = `${process.env.BASE_URL}${pageArray[1].url}`;
+                    responseBody._links.self = `${process.env.BASE_URL}${pageArray[2].url}`;
+                    delete responseBody._links.next;
+                }
             }
 
             res.status(200).json(responseBody);

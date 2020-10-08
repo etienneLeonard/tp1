@@ -14,12 +14,7 @@ const succursaleSchema = mongoose.Schema({
     province : {type : String, required : true},
     telephone : {type : String, required : true},
     telecopieur : {type : String, required : true},
-    information : {type : String, required : true},
-    inventaire: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Inventaite',
-        required: true
-    }
+    information : {type : String, required : true}
 },{
     collection:'succursales'
 });

@@ -5,6 +5,7 @@
 
 // On import le model des succursales.
 import Succursale from '../models/succursale.js';
+import inventairesService from '../services/inventairesService.js';
 
 class SuccursalesService{
 
@@ -14,8 +15,14 @@ class SuccursalesService{
     }
 
     // retourner une succursale par son ID
-    retrieveById(succursaleId) {
-        return Succursale.findById(succursaleId);
+    retrieveById(succursaleId, retrieveOptions) {
+        const retrieveQuery = Succursale.findById(succursaleId);
+        
+        if(retrieveOptions.inventaire){
+            retrieveQuery.populate('inventaire');
+        }
+
+        return retrieveQuery;
     }
 
     async update(succursaleID, succursale){
@@ -29,6 +36,17 @@ class SuccursalesService{
 
     // permet de transformer l'envoi des données d'une succursale
     transform(succursale, transformOptions = {}) {
+        const inventaire = succursale.inventaire;
+
+        if(inventaire) {
+            succursale.inventaire = { href: `${process.env.BASE_URL}/intentaires/${inventaire._id}`};
+        }
+        
+        // Pour embed=inventaire
+        if(transformOptions.embed.inventaire){
+            succursale.inventaire = inventairesService.transform(inventaire);
+        }
+
         // linking
         succursale.href = `${process.env.BASE_URL}/succursales/${succursale._id}`;
 

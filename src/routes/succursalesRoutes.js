@@ -97,9 +97,9 @@ class SuccursalesRoutes{
         }
 
         try{
-            let succursale = await succursalesService.retrieveById(req.params.idSuccursale);
+            let succursale = await succursalesService.retrieveById(req.params.idSuccursale, retrieveOptions);
 
-            succursale = succursale.toObject({ getter: false, virtual: true });
+            succursale = succursale.toObject({ getter: false, virtuals: true });
             succursale = succursalesService.transform(succursale, transformOption, retrieveOptions);
 
             res.status(200).json(succursale);

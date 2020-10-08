@@ -17,11 +17,11 @@ const succursaleSchema = mongoose.Schema({
     information : {type : String, required : true},
     inventaire: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Inventaite',
+        ref: 'Inventaire',
         required: true
     }
 },{
-    collection:'succursales'
+    collection:'succursales', id:false
 });
 
 export default mongoose.model('Succursale', succursaleSchema);

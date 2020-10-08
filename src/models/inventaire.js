@@ -11,7 +11,7 @@ const inventaireSchema = mongoose.Schema({
     dateDerniereReception : {type : Date, required : true},
     dateDerniereVente : {type : Date, required : true}    
 }, {
-    collection: 'inventaires'
+    collection: 'inventaires', id:false
 });
 
 inventaireSchema.virtual('succursales', {
@@ -20,3 +20,5 @@ inventaireSchema.virtual('succursales', {
     foreignField: 'inventaire',
     justOne: false
 });
+
+export default mongoose.model('Inventaire', inventaireSchema);

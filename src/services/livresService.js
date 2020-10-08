@@ -15,9 +15,7 @@ class LivresService{
 
     delete(idLivre)
     {
-        
         return Livre.findByIdAndDelete(idLivre);
-
     }
 
     // permet de récupérer tous les livres avec une metadata

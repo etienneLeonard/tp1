@@ -10,4 +10,13 @@ const inventaireSchema = mongoose.Schema({
     quantite : {type : Number, required : true},
     dateDerniereReception : {type : Date, required : true},
     dateDerniereVente : {type : Date, required : true}    
-})
+}, {
+    collection: 'inventaires'
+});
+
+inventaireSchema.virtual('succursales', {
+    ref: 'Succursale',
+    localField: '_id',
+    foreignField: 'inventaire',
+    justOne: false
+});

@@ -87,11 +87,21 @@ class SuccursalesRoutes{
 
     //#region Sélection
     async getOne(req, res, next){
+        const transformOption = { embed: {} };
+        const retrieveOptions = { inventaire: false};
+
+        // Embed=inventaire
+        if(req.query.embed === 'inventaire'){
+            retrieveOptions.inventaire = true;
+            transformOption.embed.inventaire = true;
+        }
+
         try{
             let succursale = await succursalesService.retrieveById(req.params.idSuccursale);
-            console.log(succursale);
+
             succursale = succursale.toObject({ getter: false, virtual: true });
-            succursale = succursalesService.transform(succursale);
+            succursale = succursalesService.transform(succursale, transformOption, retrieveOptions);
+
             res.status(200).json(succursale);
         }catch(err){
             // Va envoyer la bonne erreur

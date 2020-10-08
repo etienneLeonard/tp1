@@ -21,11 +21,7 @@ class LivresService{
     // permet de récupérer tous les livres avec une metadata
     retrieveByCriteria(filter, retrieveOptions) {
         const limit = retrieveOptions.limit;
-        console.log(retrieveOptions.page);
-        console.log(limit);
-        console.log(retrieveOptions.skip);
-        const skip = ((retrieveOptions.page - 1) * limit) + retrieveOptions.skip;
-        console.log(skip);
+        const skip = retrieveOptions.skip;
         const retrieveQuery = Livre.find(filter).skip(skip).limit(limit);
         const countQuery = Livre.countDocuments(filter);
 

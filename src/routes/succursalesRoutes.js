@@ -10,6 +10,7 @@ import error from 'http-errors';
 // On import le service des succursales.
 import succursalesService from '../services/succursalesService.js';
 
+const FIELDS_REGEX = new RegExp('([^,]*)');
 
 // On fait le routage.
 const router = express.Router();
@@ -94,6 +95,20 @@ class SuccursalesRoutes{
         if(req.query.embed === 'inventaire'){
             retrieveOptions.inventaire = true;
             transformOption.embed.inventaire = true;
+        }
+
+        
+        if(req.query.fields) { // fields=coord,explorationDate
+            let fields = req.query.fields;
+            if(FIELDS_REGEX.test(fields)) {
+                fields = fields.replace(/,/g, ' ');
+
+                retrieveOptions.fields = fields;
+            } else {
+               return next(error.BadRequest()); 
+            }
+        } else {
+            retrieveOptions.planet = true;
         }
 
         try{

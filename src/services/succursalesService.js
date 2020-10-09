@@ -16,7 +16,7 @@ class SuccursalesService{
 
     // retourner une succursale par son ID
     retrieveById(succursaleId, retrieveOptions) {
-        const retrieveQuery = Succursale.findById(succursaleId);
+        const retrieveQuery = Succursale.findById(succursaleId, retrieveOptions.fields);
         
         if(retrieveOptions.inventaire){
             retrieveQuery.populate('inventaire');

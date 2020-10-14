@@ -16,6 +16,7 @@
     "express-paginate": "^1.0.2",
     "http-errors": "^1.8.0",
     "i": "^0.3.6",
+    "lodash": "^4.17.20",
     "mongoose": "^5.10.6",
     "node": "^14.11.0"
   },

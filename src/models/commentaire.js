@@ -15,4 +15,11 @@ const commentaireSchema = mongoose.Schema({
     collection : 'commentaires'
 });
 
+commentaireSchema.virtual('livres', {
+    ref: 'Livre',
+    localField: '_id',
+    foreignField: 'commentaire',
+    justOne: false
+});
+
 export default mongoose.model('Commentaire', commentaireSchema);

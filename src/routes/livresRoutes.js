@@ -6,12 +6,15 @@
 // On import les modules.
 import express from 'express';
 import paginate from 'express-paginate';
+import _ from 'lodash';
 import { stat } from 'fs';
 import error from 'http-errors';
-
+const FIELDS_REGEX = new RegExp('([^,]*)');
 // On import le service des succursales.
 import livresService from '../services/livresService.js';
-
+import commentaireService from '../services/commentaireService.js'
+import inventaire from '../models/inventaire.js';
+import { compileFunction } from 'vm';
 // On fait le routage.
 const router = express.Router();
 
@@ -21,8 +24,9 @@ class LivresRoutes{
         router.get('/', paginate.middleware(5,6), this.getAll);
         router.get('/:idLivre', this.getOne);  // Sélection d'un livre.
         router.post('/', this.post);                // Ajouter un livre.
+        router.post('/:idLivre/commentaires',this.addCommentaire) // ED:Ajoute un commmentaire
         router.put('/:idLivre', this.put);     // Modifier un livre.
-        router.delete('/:idLivre', this.delete)
+        router.delete('/:idLivre', this.delete);
     }
     //#endregion
 
@@ -46,8 +50,32 @@ class LivresRoutes{
         }
     }
 
+    //ED:Function qui modifie un livre
     async put(req, res, next){
+        //ED:Validation que la requete à un body
+        if (!req.body) {
+            return next(error.BadRequest());
+        }
 
+        try {
+            //ED:On va Modifier le livre
+            let livre = await livresService.update(req.params.idLivre, req.body);
+            //ED:Si l'utilisateur souhaite ne pas avoir de retour 
+            if (req.query._body === 'false') {
+                //Retour avec succes et sans contenu
+                res.status(200).end();
+            } else {
+                //ED:Préparation du livre pour l'envoi ver l'utilisateur
+                livre = livre.toObject({ getter: false, virtual: true });
+                livre = await livresService.transform(livre);
+                console.log(livre)
+                //ED:Retour avec succes et avec contenu
+                res.status(200).json(livre);
+            }
+        } catch (err) {
+            //ED:Affiche de l'erreur
+            return next(error.InternalServerError(err));
+        }
     }
     //#endregion
 
@@ -169,8 +197,94 @@ class LivresRoutes{
         }
     }
 
+    //ED:Function qui va chercher un livre par son id
     async getOne(req, res, next){
-        
+        //ED:Va chercher les options demander par l'utilisateur
+        const transformOptions = { embed: {} };
+        const retrieveOptions = { inventaire: false};
+
+        //ED:Validation que l'inventaire est demander dans le embed
+        if(req.query.embed === 'inventaire'){
+            retrieveOptions.inventaire = true;
+            transformOptions.embed.inventaire = true;
+        }
+        //ED:Valide que l'utilisateur recherche des champs précis
+        if(req.query.fields) { 
+            //ED:Va chercher les champs
+            let fields = req.query.fields;
+            //ED:Valide le format
+            if(FIELDS_REGEX.test(fields)) {
+                //ED: Place dasn retrieveOption les champs demander
+                fields = fields.replace(/,/g, ' ');
+                retrieveOptions.fields = fields;
+
+            } else {
+                //ED:Retourne une erreur
+               return next(error.BadRequest()); 
+            }
+        } else {
+            retrieveOptions.livre = true;
+        }
+        try
+        {
+            //ED: Va chercher le livre
+            let livre = await livresService.retriveById(req.params.idLivre, retrieveOptions);
+            //ED:Si le livre n'existe pas 
+            if (!livre) 
+                //ED: retourne l'erreur
+                return next(error.NotFound(`Le livre avec l'identifiant ${req.params.idLivre} n'existe pas.`));
+            
+            //ED: Prepare l'objet pour l'affichage
+            livre = livre.toObject({ getter: false, virtuals: true });
+            livre = await livresService.transform(livre);
+            //ED: Declaration du responceBody 
+            let responceBody ={}
+            
+            //ED: Valide que l'utilisateur veur savoir dans quelle inventaire ce trouve ce livre
+            if(retrieveOptions.inventaire)
+            {
+                let filter = {livre:req.params.idLivre}
+                
+                //ED:Va chercher les inventaire contenant le livres 
+                let inventaireContenent = await inventaire.find();
+                
+                let  tekm=[]
+                
+                inventaireContenent.forEach((val) => { 
+                    if (req.params.idLivre ==val.toJSON().livre)
+                    { tekm.push(val.toJSON()) ;}
+                })
+                
+                //ED:Valide qu'aucun inventaire ne contient le livre
+                if(tekm.length < 1 || inventaireContenent == undefined)
+                {
+            
+                //ED:Modification du responce body si le livre n'est dans aucun inventaire 
+                responceBody = {
+                inventaire:"Présent dans aucun inventaire",
+                results:livre};
+                }    
+                //ED: si le livre est dans un inventaire
+                else
+                {
+                    //ED:Modification du responce body
+                    responceBody = {
+                        inventaire: tekm,
+                        results:livre
+                    };
+                }                    
+        }
+            else 
+                //ED:Modification du responce body
+                responceBody = {results:livre}
+            //ED:Retour avec succes et avec contenu
+            res.status(200).json(responceBody);
+        }
+        catch(err)
+        {
+            //ED:Retour de l'Erreur
+            return next(error.InternalServerError(err));
+        }
     }
 
     async delete(req,res,next){
@@ -182,6 +296,33 @@ class LivresRoutes{
         }catch(err){
             return next(error.InternalServerError(err));
         }
+    }
+    //ED: Funtion qui rajoute un commentaire a un livre
+    async addCommentaire(req,res,next)
+    {
+        //ED: Valide que l'utilisateur a bien 
+        if (_.isEmpty(req.body)) { //Retourne vrai sur {}
+            return next(error.BadRequest()); /*Erreur 400, 415*/}
+        try
+        {
+            //ED:Creer le commenataire
+            let commentaireAdded = await commentaireService.create(req.body);
+            //ED:Prepare le commentaire pour l'affichage
+            commentaireAdded = commentaireAdded.toObject({ getter: false, virtual: true});
+            commentaireAdded = commentaireService.transform(commentaireAdded);
+            res.header('Location', commentaireAdded.href);
+            //ED:Si L'utilisateur ne veut pas de retour de donner
+            if (req.query._body === 'false') {
+                //ED:Retour avec succes
+                res.status(201).end();
+            } else {
+                //ED:Retour avec succes et commentaire 
+                res.status(201).json(commentaireAdded);
+            }
+        }
+        catch(err)
+            //ED:retourne le l'erreur
+            {return next(err);}
     }
     //#endregion
 }

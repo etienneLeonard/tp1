@@ -17,7 +17,18 @@ class LivresService{
     {
         return Livre.findByIdAndDelete(idLivre);
     }
+    //ED: permet de récupéré un livre par son Id
+    retriveById(livreId,retrieveOptions)
+    {
 
+        //ED: Chercher le livre
+        const retrieveQuery = Livre.findById(livreId, retrieveOptions.fields);
+        if(retrieveOptions.inventaire){
+            retrieveQuery.populate('inventaire');
+        }
+        //ED:Retourne le livre
+        return retrieveQuery;
+    }
     // permet de récupérer tous les livres avec une metadata
     retrieveByCriteria(filter, retrieveOptions) {
         const limit = retrieveOptions.limit;
@@ -31,13 +42,22 @@ class LivresService{
     // permet de transformer l'envoi des données d'un livre
     transform(livre, transformOptions = {}) {
         // linking
-        livre.href = `${process.env.BASE_URL}/livres/${livre._id}`;
+        livre.href = `${process.env.BASE_URL}/livres/${livre.id}`;
 
         // Ménage du livre
         delete livre._id;
         delete livre.__v;
 
         return livre;
+    }
+    //ED: Function qui met a jour un livre
+    async update(idLivre, livre)
+    {
+        //ED: declarion du filtre
+        const filter = { _id: idLivre };
+        //ED: retourne le livre et l'update
+        await Livre.findOneAndUpdate(filter, livre);//Retourne le livre avant la mise à jour
+        return  this.retriveById(idLivre,{}) ;
     }
 }
 

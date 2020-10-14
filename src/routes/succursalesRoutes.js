@@ -91,18 +91,20 @@ class SuccursalesRoutes{
         const transformOption = { embed: {} };
         const retrieveOptions = { inventaire: false};
 
-        // Embed=inventaire
+        // EL : Embed=inventaire
         if(req.query.embed === 'inventaire'){
             retrieveOptions.inventaire = true;
             transformOption.embed.inventaire = true;
         }
 
-        
-        if(req.query.fields) { // fields=coord,explorationDate
+        // EL : On vérifie s'il y a un field de spécifier
+        if(req.query.fields) { 
+            // EL : ici il y a un field(s) de spécifié(s)
             let fields = req.query.fields;
             if(FIELDS_REGEX.test(fields)) {
                 fields = fields.replace(/,/g, ' ');
 
+                // EL : on garde en mémoire le(s) field(s) spécifié(s)
                 retrieveOptions.fields = fields;
             } else {
                return next(error.BadRequest()); 
@@ -112,14 +114,17 @@ class SuccursalesRoutes{
         }
 
         try{
+            // EL : on va récupérer une succursale par son id avec les options
             let succursale = await succursalesService.retrieveById(req.params.idSuccursale, retrieveOptions);
 
+             // EL : on transforme la succursale en objet
             succursale = succursale.toObject({ getter: false, virtuals: true });
             succursale = succursalesService.transform(succursale, transformOption, retrieveOptions);
 
+            // EL : on retourne la succursale avec ses informations
             res.status(200).json(succursale);
         }catch(err){
-            // Va envoyer la bonne erreur
+            // EL : Va envoyer la bonne erreur
             return next(err);
         }
     }

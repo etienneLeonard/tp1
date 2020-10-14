@@ -1,3 +1,5 @@
+// Code de gestion d'erreurs
+
 import mongoose from 'mongoose';
 import httpErrors from 'http-errors';
 

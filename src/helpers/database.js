@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import chalk from 'chalk';
 
+// Code pour accèder à la base de données
 export default app => {
 
     const url = process.env.DATABASE;
@@ -12,8 +13,8 @@ export default app => {
     mongoose.set('useCreateIndex', true);
     mongoose.set('useUnifiedTopology', true);
 
+    // connection à la base de données
     mongoose.connect(url).then(
-        () => { console.log(chalk.green(`[MONGO] - Connected to: ${url}`)); },
-        err => { /*TODO:*/ }
+        () => { console.log(chalk.green(`[MONGO] - Connected to: ${url}`)); }
     );
 }

@@ -17,6 +17,7 @@ class LivresService{
     {
         return Livre.findByIdAndDelete(idLivre);
     }
+
     //ED: permet de récupéré un livre par son Id
     retriveById(livreId,retrieveOptions)
     {
@@ -29,13 +30,17 @@ class LivresService{
         //ED:Retourne le livre
         return retrieveQuery;
     }
-    // permet de récupérer tous les livres avec une metadata
+
+    // EL : permet de récupérer tous les livres avec une metadata
     retrieveByCriteria(filter, retrieveOptions) {
+
+        // EL : on donne une valeur aux variables du metadata
         const limit = retrieveOptions.limit;
         const skip = retrieveOptions.skip;
         const retrieveQuery = Livre.find(filter).skip(skip).limit(limit);
         const countQuery = Livre.countDocuments(filter);
 
+        // EL : on retourne les livres et le nombre de livres présents
         return Promise.all([retrieveQuery, countQuery]);
     }
 
@@ -50,6 +55,7 @@ class LivresService{
 
         return livre;
     }
+
     //ED: Function qui met a jour un livre
     async update(idLivre, livre)
     {

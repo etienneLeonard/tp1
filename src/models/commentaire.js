@@ -15,6 +15,7 @@ const commentaireSchema = mongoose.Schema({
     collection : 'commentaires'
 });
 
+// On fait le lien avec le livre 
 commentaireSchema.virtual('livres', {
     ref: 'Livre',
     localField: '_id',

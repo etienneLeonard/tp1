@@ -31,21 +31,29 @@ class LivresRoutes{
     //#endregion
 
     //#region Ajout et modification
+    // EL : ajout d'un livre
     async post(req, res, next){
 
+        // EL : on s'assure que le body n'est pas vide
         if(!req.body) {
-            return next(error.BadRequest()); //Erreur 400
+            return next(error.BadRequest()); // EL : Erreur 400
         }
 
         try {
+            // EL : on crée le livre avec l'information du body
             let livreAdded = await livresService.create(req.body);
+
+            // EL : on transforme le livre en objet
             livreAdded = livreAdded.toObject({ getter: false, virtual: true});
             livreAdded = livresService.transform(livreAdded);
 
+            // EL : on ajoute le lien du nouveau livre dans le Header
             res.header('Location', livreAdded.href);
+
+            // EL : on retourne le nouveau livre
             res.status(201).json(livreAdded);
         } catch(err) {
-            // Va envoyer la bonne erreur
+            // EL : Va envoyer la bonne erreur
             return next(err);
         }
     }
@@ -80,8 +88,10 @@ class LivresRoutes{
     //#endregion
 
     //#region Sélection
+    // EL : Sélection de tous les livres
     async getAll(req, res, next){
 
+        // EL : on définit les informations du metadata
         const retrieveOptions = {
             limit: req.query.limit,
             page: req.query.page,
@@ -92,23 +102,23 @@ class LivresRoutes{
 
             let filter = {};
 
-            // on verifie s'il y a une categorie de donnée
+            // EL : on verifie s'il y a une categorie de donnée
             if(req.query.categorie){
                 filter = {categorie: `${req.query.categorie}`};
             }
 
-            // on va récupérer les livres et le nombre de livres
+            // EL : on va récupérer les livres et le nombre de livres
             let [livres, itemsCount] = await livresService.retrieveByCriteria(filter, retrieveOptions);
 
-            // on déclage les constantes pour le metadata
+            // EL : on déclage les constantes pour le metadata
             const pageCount = Math.ceil(itemsCount / req.query.limit);
             const hasNextPage = paginate.hasNextPages(req)(pageCount);
             const pageArray = paginate.getArrayPages(req)(3, pageCount, req.query.page);
             
-            // déclaration du responsebody
+            // EL : déclaration du responsebody
             let responseBody = {};
             
-            // s'il y a juste des livres pour une seul page, alors il ne faut pas de link prev et next
+            // EL : s'il y a juste des livres pour une seul page, alors il ne faut pas de link prev et next
             if(pageCount === 1){
                 responseBody = {
                     _metadata: {
@@ -125,7 +135,7 @@ class LivresRoutes{
                 };
             }
 
-            // s'il y a assez de livre que pour 2 pages, alors il faut qu'un self et un next
+            // EL : s'il y a assez de livre que pour 2 pages, alors il faut qu'un self et un next
             if(pageCount === 2){
                 responseBody = {
                     _metadata: {
@@ -142,14 +152,14 @@ class LivresRoutes{
                     results: livres
                 };
 
-                // pour si nous sommes à la première page
+                // EL : pour si nous sommes à la première page
                 if(req.query.page === 1) {
                     delete responseBody._links.prev;
                     responseBody._links.self = `${process.env.BASE_URL}${pageArray[0].url}`;
                     responseBody._links.next = `${process.env.BASE_URL}${pageArray[1].url}`;
                 }
     
-                // pour s'il n'y a pas de prochaine page
+                // EL : pour s'il n'y a pas de prochaine page
                 if(!hasNextPage) {
                     responseBody._links.prev = `${process.env.BASE_URL}${pageArray[0].url}`;
                     responseBody._links.self = `${process.env.BASE_URL}${pageArray[1].url}`;
@@ -157,7 +167,7 @@ class LivresRoutes{
                 }
             }
             
-            // Pour s'il y a assez de livres pour plus de 3 pages
+            // EL : Pour s'il y a assez de livres pour plus de 3 pages
             if(pageCount >= 3){
                 responseBody = {
                     _metadata: {
@@ -175,14 +185,14 @@ class LivresRoutes{
                     results: livres
                 };
 
-                // pour si nous sommes à la première page
+                // EL : pour si nous sommes à la première page
                 if(req.query.page === 1) {
                     delete responseBody._links.prev;
                     responseBody._links.self = `${process.env.BASE_URL}${pageArray[0].url}`;
                     responseBody._links.next = `${process.env.BASE_URL}${pageArray[1].url}`;
                 }
     
-                // pour s'il n'y a pas de prochaine page
+                // EL : pour s'il n'y a pas de prochaine page
                 if(!hasNextPage) {
                     responseBody._links.prev = `${process.env.BASE_URL}${pageArray[1].url}`;
                     responseBody._links.self = `${process.env.BASE_URL}${pageArray[2].url}`;
@@ -190,9 +200,11 @@ class LivresRoutes{
                 }
             }
 
+            // EL : on retourne les livres
             res.status(200).json(responseBody);
 
         }catch(err) {
+            // EL : On retourne l'erreur 
             return next(err);
         }
     }

@@ -14,6 +14,7 @@ const inventaireSchema = mongoose.Schema({
     collection: 'inventaires', id:false
 });
 
+// Lien avec la succursale
 inventaireSchema.virtual('succursales', {
     ref: 'Succursale',
     localField: '_id',

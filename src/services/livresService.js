@@ -31,6 +31,16 @@ class LivresService{
         return retrieveQuery;
     }
 
+    retrieveInventaire(livreId){
+        // On trouve le livre par son id.
+        const retrieveQuery = Livre.findById(livreId);
+
+
+        retrieveQuery.populate('inventaires');
+
+        return retrieveQuery;       
+    }
+
     // EL : permet de récupérer tous les livres avec une metadata
     retrieveByCriteria(filter, retrieveOptions) {
 
@@ -45,9 +55,27 @@ class LivresService{
     }
 
     // permet de transformer l'envoi des données d'un livre
-    transform(livre, transformOptions = {}) {
+    transform(livre, transformOptions = {}) {        
+        
         // linking
         livre.href = `${process.env.BASE_URL}/livres/${livre.id}`;
+
+        // Ménage du livre
+        delete livre._id;
+        delete livre.__v;
+
+        return livre;
+    }
+
+    transformInventaire(livre, transformOptions = {}){
+        livre.href = `${process.env.BASE_URL}/livres/${livre.id}`;
+
+        livre.inventaires = livre.inventaires.map(e => {
+            e.href = `${process.env.BASE_URL}/inventaires/${e._id}`;
+            e.livre = {href : livre.href}
+
+            return e;
+        })
 
         // Ménage du livre
         delete livre._id;

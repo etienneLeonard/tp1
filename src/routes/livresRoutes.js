@@ -23,6 +23,7 @@ class LivresRoutes{
     constructor(){
         router.get('/', paginate.middleware(5,6), this.getAll);
         router.get('/:idLivre', this.getOne);  // Sélection d'un livre.
+        router.get('/:idLivre/inventaire', this.getInventaire);
         router.post('/', this.post);                // Ajouter un livre.
         router.post('/:idLivre/commentaires',this.addCommentaire) // ED:Ajoute un commmentaire
         router.put('/:idLivre', this.put);     // Modifier un livre.
@@ -207,6 +208,29 @@ class LivresRoutes{
             // EL : On retourne l'erreur 
             return next(err);
         }
+    }
+
+    async getInventaire(req,res,next){
+        const transformOptions = { embed: {} };
+        const retrieveOptions = {}
+
+        retrieveOptions.inventaires = true;
+        transformOptions.embed.inventaires = true;
+       
+        try{
+            let livre = await livresService.retrieveInventaire(req.params.idLivre);
+                    
+            if(!livre)
+                return next(error.NotFound(`Le livre avec l'identifiant ${req.params.idLivre} n'existe pas.`));
+
+            livre = livre.toObject({getter : false, virtuals : true});
+
+            livre = livresService.transformInventaire(livre,transformOptions);
+
+            res.status(200).json(livre);        
+       }catch(err){
+           return next(error.InternalServerError(err));
+       }
     }
 
     //ED:Function qui va chercher un livre par son id

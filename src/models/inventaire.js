@@ -9,7 +9,7 @@ import mongoose from 'mongoose'
 const inventaireSchema = mongoose.Schema({
     quantite : {type : Number, required : true},
     dateDerniereReception : {type : Date, required : true},
-    dateDerniereVente : {type : Date, required : true}    
+    dateDerniereVente : {type : Date, required : true}
 }, {
     collection: 'inventaires', id:false
 });

@@ -26,6 +26,8 @@ class SuccursalesRoutes{
 
     //#region Ajout et modification
     async post(req, res, next){
+        console.log("iic")
+        
         // Si le corps de la requête est vide, fait ceci.
         if(!req.body)
             return next(error.BadRequest());    // Erreur 400, 4015
@@ -33,7 +35,7 @@ class SuccursalesRoutes{
         try{
             // On crée une nouvelle succursale par le service.
             let succursaleAjout = await succursalesService.create(req.body);
-
+            
             // On crée les paramètes de la requête.
             succursaleAjout = succursaleAjout.toObjet({getter : false, virtual : true});
             succursaleAjout = succursaleAjout.transform(succursaleAjout);
@@ -48,16 +50,6 @@ class SuccursalesRoutes{
                 res.status(201).json(succursaleAjout);
                 
         }catch(err){
-            // On fait la gestion des erreurs "Mongo".
-            if(err.name === "MongoError"){
-                switch(err.code){
-                    case 1110:
-                        return next(error.Conflict(err));
-                }
-            }else if(err.message.incluse("Succursale validation")){
-                return next(error.PreconditionFailed(err))
-            }
-
             return next(error.InternalServerError(err));
         }
     }

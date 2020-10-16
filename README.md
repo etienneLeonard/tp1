@@ -11,5 +11,6 @@ Démarrer le serveur
 1. Téléchargez le projet avec le serveur que vous souhaitez démarrer
 2. Une fois dans le projet, ouvrez un invite de commande à la racine du projet
 3. Tapez la commande "npm i" pour être sur d'avoir tous les modules de Node.js que le projet a de besoin
+4. Assurez-vous d'avoir un fichier .env avec le variable BASE_URL qui a le lien de base pour accèder au serveur (ex.: http://localhost:5600) et une variable DATABASE avec le lien qui mène à la base de données.
 4. Une fois les modules installés, tapez la commande "npm start", cela va démarrer le serveur 
 5. Si vous souhaitez lancer le serveur en mode dévellopement, tapez la commande "npm run start:dev" au lieu de la commande précédente

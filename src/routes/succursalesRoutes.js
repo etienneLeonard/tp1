@@ -26,7 +26,6 @@ class SuccursalesRoutes{
 
     //#region Ajout et modification
     async post(req, res, next){
-        console.log("iic")
         
         // Si le corps de la requête est vide, fait ceci.
         if(!req.body)
@@ -37,8 +36,8 @@ class SuccursalesRoutes{
             let succursaleAjout = await succursalesService.create(req.body);
             
             // On crée les paramètes de la requête.
-            succursaleAjout = succursaleAjout.toObjet({getter : false, virtual : true});
-            succursaleAjout = succursaleAjout.transform(succursaleAjout);
+            succursaleAjout = succursaleAjout.toObject({getter : false, virtual : true});
+            succursaleAjout = succursalesService.transformAjout(succursaleAjout);
 
             // On dit la position de la succursale.
             res.header('Location', succursaleAjout.href);
@@ -69,7 +68,7 @@ class SuccursalesRoutes{
             }else{
                 succursale = succursale.toObject({getter:false, virtual:true});
 
-                succursale = succursalesService.transform(succursale);
+                succursale = succursalesService.transformAjout(succursale);
                 res.status(200).json(succursale);
             }
         }catch(err){

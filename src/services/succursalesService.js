@@ -36,14 +36,33 @@ class SuccursalesService{
         return Succursale.findOne(filter);
     }
 
-    // EL : permet de transformer l'envoi des données d'une succursale
-    transform(succursale, transformOptions = {}) {
+    transformAjout(succursale)
+    {
         const inventaire = succursale.inventaire;
 
         if(inventaire) {
-            succursale.inventaire = { href: `${process.env.BASE_URL}/intentaires/${inventaire._id}`};
+            succursale.inventaire= { href: `${process.env.BASE_URL}/inventaires/${inventaire._id}`};
         }
         
+        // EL : linking
+        succursale.href = `${process.env.BASE_URL}/succursales/${succursale._id}`;
+
+        // EL : Ménage de la succursale
+        delete succursale._id;
+        delete succursale.__v;
+
+        // EL : on retourne la succursale transformée
+        return succursale;       
+    }
+
+    // EL : permet de transformer l'envoi des données d'une succursale
+    transform(succursale, transformOptions = {}) {        
+        const inventaire = succursale.inventaire;
+
+        if(inventaire) {
+            succursale.inventaire= { href: `${process.env.BASE_URL}/inventaires/${inventaire._id}`};
+        }
+
         // EL : Pour embed=inventaire
         if(transformOptions.embed.inventaire){
             succursale.inventaire = inventairesService.transform(inventaire);

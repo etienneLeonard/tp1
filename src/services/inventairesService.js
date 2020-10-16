@@ -7,6 +7,7 @@ import Inventaire from '../models/inventaire.js';
 
 class InventairesService{
     transform(inventaire){
+
         inventaire.href = `${process.env.BASE_URL}/inventaires/${inventaire._id}`;
         inventaire.livre = `${process.env.BASE_URL}/livres/${inventaire.livre}`;
         inventaire.succursale = `${process.env.BASE_URL}/succursales/${inventaire.succursale}`;
